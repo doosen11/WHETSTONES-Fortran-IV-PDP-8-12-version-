@@ -1,0 +1,320 @@
+C**********************************************************************
+C     BENCHMARK #2 -- SINGLE PRECISION WHETSTONE (A001)
+C
+C     O THIS IS A REAL*4 VERSION OF
+C       THE WHETSTONE BENCHMARK PROGRAM.
+C
+C     O DO-LOOP SEMANTICS ARE ANSI-66 COMPATIBLE.
+C
+C     O FINAL MEASUREMENTS ARE TO BE MADE WITH ALL
+C       WRITE STATEMENTS AND FORMAT STTEMENTS REMOVED.
+C
+C**********************************************************************   
+C        IMPLICIT REAL (A-H,O-Z)
+C
+C        T = 0.123
+        COMMON T,T1,T2,E1(4),J,K,L
+C        COMMON/PTIME/PTIME,TIME0
+        REAL TIME0,TIME1,WALLTIME,PTIME,DUM
+C
+        WRITE(4,1)
+   1    FORMAT(/' BENCHMARK #2 -- SINGLE PRECISION WHETSTONE (A001)')
+C
+C       START BENCHMARK TIMING AT THIS POINT.
+C
+C
+C	   ENABLE ON PDP-12 NOT SIMH
+C        CALL CLOCK(17,100)
+C
+C
+C        TIME0 = TIME(DUM)
+C        PTIME = TIME(DUM) 
+C        PTIME = TIME0
+C
+        WRITE(4,2)
+   2	  FORMAT(/' START YOUR STOPWATCH AND PRESS PRESS CONTINUE SWITCH')
+C   	  PAUSE   	  
+C       THE ACTUAL BENCHMARK STARTS HERE.
+C
+        T = .499975
+        T1 = 0.50025
+        T2 = 2.0
+C
+C       WITH LOOPCOUNT LOOP=10, ONE MILLION WHETSTONE INSTRUCTIONS
+C       WILL BE EXECUTED IN EACH MAJOR LOOP..A MAJOR LOOP IS EXECUTED
+C       'II' TIMES TO INCREASE WALL-CLOCK TIMING ACCURACY.
+C
+        LOOP = 1000
+        II   = 1
+C
+        DO 500 JJ=1,II
+C
+C       ESTABLISH THE RELATIVE LOOP COUNTS OF EACH MODULE.
+C
+        N1 = 0
+        N2 = 12 * LOOP
+        N3 = 14 * LOOP
+        N4 = 345 * LOOP
+        N5 = 0
+        N6 = 210 * LOOP
+        N7 = 32 * LOOP
+        N8 = 899 * LOOP
+        N9 = 616 * LOOP
+        N10 = 0
+        N11 = 93 * LOOP
+C
+C       MODULE 1: SIMPLE IDENTIFIERS
+C
+        X1 = 1.0
+        X2 = -1.0
+        X3 = -1.0
+        X4 = -1.0
+C
+        IF (N1.EQ.0) GO TO 35
+                DO 30 I=1,N1
+                X1 = (X1 + X2 + X3 - X4)*T
+                X2 = (X1 + X2 - X3 + X4)*T
+                X3 = (X1 - X2 + X3 + X4)*T
+                X4 = (-X1 + X2 + X3 + X4)*T
+   30           CONTINUE
+   35   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N1,N1,N1)
+        IF (JJ.EQ.II)CALL POUT2(X1,X2,X3,X4)
+C
+C       MODULE 2: ARRAY ELEMENTS
+C
+        E1(1) = 1.0
+        E1(2) = -1.0
+        E1(3) = -1.0
+        E1(4) = -1.0
+C
+        IF (N2.EQ.0) GO TO 45
+                DO 40 I=1,N2
+                E1(1) = (E1(1) + E1(2) + E1(3) - E1(4))*T
+                E1(2) = (E1(1) + E1(2) - E1(3) + E1(4))*T
+                E1(3) = (E1(1) - E1(2) + E1(3) + E1(4))*T
+                E1(4) = (-E1(1) + E1(2) + E1(3) + E1(4))*T
+   40           CONTINUE
+   45   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N2,N3,N2)
+        IF (JJ.EQ.II)CALL POUT2(E1(1),E1(2),E1(3),E1(4))
+C
+C       MODULE 3: ARRAY AS PARAMETER
+C
+        IF (N3.EQ.0) GO TO 59
+                DO 50 I=1,N3
+                CALL PA(E1)
+   50           CONTINUE
+   59   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N3,N2,N2)
+        IF (JJ.EQ.II)CALL POUT2(E1(1),E1(2),E1(3),E1(4))
+C
+C       MODULE 4: CONDITIONAL JUMPS
+C
+        J = 1
+        IF (N4.EQ.0) GO TO 65
+                DO 60 I=1,N4
+                IF (J.EQ.1) GO TO 51
+                J = 3
+                GO TO 52
+51              J = 2
+52              IF (J.GT.2) GO TO 53
+                J = 1
+                GO TO 54
+53              J = 0
+54              IF (J.LT.1) GO TO 55
+                J = 0
+                GO TO 60
+55              J = 1
+   60           CONTINUE
+   65   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N4,J,J)
+        IF (JJ.EQ.II)CALL POUT2(X1,X2,X3,X4)
+C
+C       MODULE 5: OMITTED
+C       MODULE 6: INTEGER ARITHMETIC
+C       
+        J = 1
+        K = 2
+        L = 3
+C
+        IF (N6.EQ.0) GO TO 75
+                DO 70 I=1,N6
+                J = J * (K-J) * (L-K)
+                K = L * K - (L-J) * K
+                L = (L - K) * (K + J)
+                E1(L-1) = J + K + L
+                E1(K-1) = J * K * L
+   70           CONTINUE
+   75   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N6,J,K)
+        IF (JJ.EQ.II)CALL POUT2(E1(1),E1(2),E1(3),E1(4))
+C
+C       MODULE 7: TRIGONOMETRIC FUNCTIONS
+C
+        X = 0.5
+        Y = 0.5
+C
+        IF (N7.EQ.0) GO TO 85
+                DO 80 I=1,N7
+                X=T*ATAN(T2*SIN(X)*COS(X)/(COS(X+Y)+COS(X-Y)-1.0))
+                Y=T*ATAN(T2*SIN(Y)*COS(Y)/(COS(X+Y)+COS(X-Y)-1.0))
+   80           CONTINUE
+   85   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N7,J,K)
+        IF (JJ.EQ.II)CALL POUT2(X,X,Y,Y)
+C
+C       MODULE 8: PROCEDURE CALLS
+C
+        X = 1.0
+        Y = 1.0
+        Z = 1.0
+C
+        IF (N8.EQ.0) GO TO 95
+                DO 90 I=1,N8
+                CALL P3(X,Y,Z)
+   90           CONTINUE
+   95   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N8,J,K)
+        IF (JJ.EQ.II)CALL POUT2(X,Y,Z,Z)
+C
+C       MODULE 9: ARRAY REFERENCES
+C
+        J = 1
+        K = 2
+        L = 3
+        E1(1) = 1.0
+        E1(2) = 2.0
+        E1(3) = 3.0
+C
+        IF (N9.EQ.0) GO TO 105
+                DO 100  I=1,N9
+                CALL P0
+  100           CONTINUE
+  105   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N9,J,K)
+        IF (JJ.EQ.II)CALL POUT2(E1(1),E1(2),E1(3),E1(4))
+C
+C       MODULE 10: INTEGER ARITHMETIC
+C
+        J = 2
+        K = 3
+C
+        IF (N10.EQ.0) GO TO 115
+                DO 110 I=1,N10
+                J = J + K
+                K = J + K
+                J = K - J
+                K = K - J - J
+  110           CONTINUE
+  115   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N10,J,K)
+        IF (JJ.EQ.II)CALL POUT2(X1,X2,X3,X4)
+C
+C       MODULE 11: STANDARD FUNCTIONS
+C
+        X = 0.75
+C
+        IF (N11.EQ.0) GO TO 125
+                DO 120 I=1,N11
+                X = SQRT(EXP(ALOG(X)/T1))
+  120           CONTINUE
+  125   CONTINUE
+C
+        IF (JJ.EQ.II)CALL POUT1(N11,J,K)
+        IF (JJ.EQ.II)CALL POUT2(X,X,X,X)
+C
+C      THIS IS THE END OF THE MAJOR LOOP.
+C
+  500   CONTINUE
+C
+C      STOP BENCHMARK TIMING AT THIS POINT.
+C
+	  WRITE(4,3)
+   3	  FORMAT(' STOP TIMER NOW')
+C        TIME1 = WALLTIME(DUM)
+C        TIME1 = TIME(DUM)
+C----------------------------------------------------------------
+C      PERFORMANCE IN WHETSTONE KIP'S PER SECOND IS GIVEN BY
+C
+C       (100*LOOP*II)/TIME
+C
+C      WHERE TIME IS IN SECONDS.
+C--------------------------------------------------------------------
+C   PRINT *,' SINGLE WHETSTONE KIPS ', NINT((100*LOOP*II)/(TIME1-TIME0))
+	  WRITE(4,4)
+   4    FORMAT(' 100*LOOP/TOTAL TIME = WHETSTONE KIP\'S PER SECOND.')
+        END
+C
+C        SUBROUTINE PA(E)
+C        IMPLICIT REAL*4 (A-H,O-Z)
+C        DIMENSION E(4)
+C        COMMON T,T1,T2,E1(4),J,K,L
+C        J1 = 0
+C   10   E(1) = (E(1) + E(2) + E(3) - E(4)) * T
+C        E(2) = (E(1) + E(2) - E(3) + E(4)) * T  
+C        E(3) = (E(1) - E(2) + E(3) + E(4)) * T
+C        E(4) = (-E(1) + E(2) + E(3) + E(4)) / T2
+C        J1 = J1 + 1
+C        IF (J1 - 6) 10,20,20
+C
+C   20   RETURN
+C        END
+C
+C        SUBROUTINE P0
+C        IMPLICIT REAL*4 (A-H,O-Z)
+C        COMMON T,T1,T2,E1(4),J,K,L
+C        E1(J) = E1(K)
+C        E1(K) = E1(L)
+C        E1(L) = E1(J)
+C        RETURN
+C        END
+C
+C        SUBROUTINE P3(X,Y,Z)
+C        IMPLICIT REAL*4 (A-H,O-Z)
+C        COMMON T,T1,T2,E1(4),J,K,L
+C        X1 = X
+C        Y1 = Y
+C        X1 = T * (X1 + Y1)
+C        Y1 = T * (X1 + Y1)
+C        Z = (X1 + Y1) / T2
+C        RETURN
+C        END
+C
+C
+C        SUBROUTINE POUT1(N,J,K)
+C        COMMON/PTIME/PTIME,TIME0
+C        REAL PTIME,TIME1,TIME0
+C        WRITE(4,98)N,J,K
+C    98  FORMAT(2I3,1X,3I7)
+C        RETURN
+C        END
+C       
+C        SUBROUTINE POUT2(X1,X2,X3,X4)
+C        IMPLICIT REAL*4 (A-H,O-Z)
+C        COMMON/PTIME/PTIME,TIME0
+C        REAL PTIME,TIME1,TIME0,WALLTIME
+C        WRITE(4,99)X1,X2,X3,X4
+C   99   FORMAT (4(1PE12.4))
+C        PTIME = TIME1
+C        WRITE(4,10)
+C    10  FORMAT(/' WELL THAT SEEMED TO WORK...')
+C        RETURN
+C        END
+C
+C        REAL FUNCTION WALLTIME(DUM) 
+C        REAL IT
+C        WALLTIME = TIME(IT)
+C        RETURN
+C        END
+
+
